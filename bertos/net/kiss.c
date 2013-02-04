@@ -17,7 +17,7 @@ uint8_t kiss_queue_state;
 size_t kiss_queue_len = 0;
 struct Kiss_msg kiss_queue[KISS_QUEUE];
 
-#define KISS_PORTS 4
+#define KISS_PORTS 1
 kiss_in_callback_t kiss_in_callbacks[KISS_PORTS];
 
 uint8_t kiss_txdelay;
@@ -180,10 +180,10 @@ void kiss_queue_process()
 		return;
 	}
 
+*/
 	if (kiss_ax25->dcd) {
 		return;
 	}
-*/
 
 	if (kiss_queue_state == KISS_QUEUE_DELAYED) {
 		if (timer_clock() - kiss_queue_ts <= ms_to_ticks(kiss_slot_time * 10)) {

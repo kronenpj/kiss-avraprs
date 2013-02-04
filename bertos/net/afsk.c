@@ -209,7 +209,7 @@ static bool hdlc_parse(Hdlc *hdlc, bool bit, FIFOBuffer *fifo)
  */
 void afsk_adc_isr(Afsk *af, int8_t curr_sample)
 {
-	AFSK_STROBE_ON();
+	AFSK_RX_STROBE_ON();
 
 	/*
 	 * Frequency discriminator and LP IIR filter.
@@ -309,13 +309,14 @@ void afsk_adc_isr(Afsk *af, int8_t curr_sample)
 	}
 
 
-	AFSK_STROBE_OFF();
+	AFSK_RX_STROBE_OFF();
 }
 
 static void afsk_txStart(Afsk *af)
 {
 	if (!af->sending)
 	{
+		AFSK_PTT_ON();
 		af->phase_inc = MARK_INC;
 		af->phase_acc = 0;
 		af->stuff_cnt = 0;
@@ -353,6 +354,7 @@ uint8_t afsk_dac_isr(Afsk *af)
 			{
 				AFSK_DAC_IRQ_STOP(af->dac_ch);
 				af->sending = false;
+				AFSK_PTT_OFF();
 				AFSK_STROBE_OFF();
 				return 0;
 			}
@@ -393,6 +395,7 @@ uint8_t afsk_dac_isr(Afsk *af)
 					{
 						AFSK_DAC_IRQ_STOP(af->dac_ch);
 						af->sending = false;
+						AFSK_PTT_OFF();
 						AFSK_STROBE_OFF();
 						return 0;
 					}
@@ -555,6 +558,7 @@ void afsk_init(Afsk *af, int adc_ch, int dac_ch)
 	AFSK_ADC_INIT(adc_ch, af);
 	AFSK_DAC_INIT(dac_ch, af);
 	AFSK_STROBE_INIT();
+	AFSK_RX_STROBE_INIT();
 	LOG_INFO("MARK_INC %d, SPACE_INC %d\n", MARK_INC, SPACE_INC);
 
 	DB(af->fd._type = KFT_AFSK);

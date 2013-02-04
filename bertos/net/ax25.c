@@ -151,7 +151,12 @@ void ax25_poll(AX25Ctx *ctx)
 				if (ctx->crc_in == AX25_CRC_CORRECT)
 				{
 					LOG_INFO("Frame found!\n");
-					ax25_decode(ctx);
+					if (ctx->raw) {
+						if (ctx->hook)
+							ctx->hook(NULL);
+					} else {
+						ax25_decode(ctx);
+					}
 				}
 				else
 				{
@@ -161,6 +166,9 @@ void ax25_poll(AX25Ctx *ctx)
 			ctx->sync = true;
 			ctx->crc_in = CRC_CCITT_INIT_VAL;
 			ctx->frm_len = 0;
+
+			ctx->dcd_state = 0;
+			ctx->dcd = false;
 			continue;
 		}
 
@@ -168,6 +176,7 @@ void ax25_poll(AX25Ctx *ctx)
 		{
 			LOG_INFO("HDLC reset\n");
 			ctx->sync = false;
+			ctx->dcd = false;
 			continue;
 		}
 
@@ -183,11 +192,21 @@ void ax25_poll(AX25Ctx *ctx)
 			{
 				ctx->buf[ctx->frm_len++] = c;
 				ctx->crc_in = updcrc_ccitt(c, ctx->crc_in);
+
+				if (ctx->dcd_state == 1 && c == AX25_PID_NOLAYER3) {
+					ctx->dcd_state ++;
+					ctx->dcd = true;
+				}
+
+				if (ctx->dcd_state == 0 && c == AX25_CTRL_UI) {
+					ctx->dcd_state ++;
+				}
 			}
 			else
 			{
 				LOG_INFO("Buffer overrun");
 				ctx->sync = false;
+				ctx->dcd = false;
 			}
 		}
 		ctx->escape = false;
@@ -197,6 +216,7 @@ void ax25_poll(AX25Ctx *ctx)
 	{
 		LOG_ERR("Channel error [%04x]\n", kfile_error(ctx->ch));
 		kfile_clearerr(ctx->ch);
+		ctx->dcd = false;
 	}
 }
 
@@ -250,7 +270,6 @@ void ax25_sendVia(AX25Ctx *ctx, const AX25Call *path, size_t path_len, const voi
 
 	ctx->crc_out = CRC_CCITT_INIT_VAL;
 	kfile_putc(HDLC_FLAG, ctx->ch);
-
 
 	/* Send call */
 	for (size_t i = 0; i < path_len; i++)
@@ -341,7 +360,7 @@ void ax25_print(KFile *ch, const AX25Msg *msg)
  * \param channel Used to gain access to the physical medium
  * \param hook Callback function called when a message is received
  */
-void ax25_init(AX25Ctx *ctx, KFile *channel, ax25_callback_t hook)
+void ax25_init(AX25Ctx *ctx, KFile *channel, bool raw, ax25_callback_t hook)
 {
 	ASSERT(ctx);
 	ASSERT(channel);
@@ -349,5 +368,6 @@ void ax25_init(AX25Ctx *ctx, KFile *channel, ax25_callback_t hook)
 	memset(ctx, 0, sizeof(*ctx));
 	ctx->ch = channel;
 	ctx->hook = hook;
+	ctx->raw = raw;
 	ctx->crc_in = ctx->crc_out = CRC_CCITT_INIT_VAL;
 }

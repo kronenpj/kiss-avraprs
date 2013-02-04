@@ -10,7 +10,7 @@
 #include <drv/timer.h>
 #include <algo/crc_ccitt.h>
 
-#define KISS_QUEUE 2
+#define KISS_QUEUE 1
 
 #define KISS_FEND  0xc0
 #define KISS_FESC  0xdb

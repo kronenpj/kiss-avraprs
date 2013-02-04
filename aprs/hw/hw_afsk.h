@@ -72,16 +72,22 @@ void hw_afsk_dacInit(int ch, struct Afsk *_ctx);
  * leave empty the following macros
  */
 #define AFSK_STROBE_INIT() do { DDRB |= BV(5); } while (0)
+#define AFSK_RX_STROBE_INIT() do { DDRB |= BV(4); } while (0)
+#define AFSK_PTT_INIT() do { DDRB |= BV(3); } while (0)
 
 /*
  * Set the pin high. This macro is called at the beginning of the interrupt routine
  */
 #define AFSK_STROBE_ON()   do { PORTB |= BV(5); } while (0)
+#define AFSK_RX_STROBE_ON() do { PORTB |= BV(4); } while (0)
+#define AFSK_PTT_ON()   do { PORTB |= BV(3); } while (0)
 
 /*
  * Set the pin low. This macro is called at the end of the interrupt routine
  */
 #define AFSK_STROBE_OFF()  do { PORTB &= ~BV(5); } while (0)
+#define AFSK_RX_STROBE_OFF() do { PORTB &= ~BV(4); } while (0)
+#define AFSK_PTT_OFF()   do { PORTB &= ~BV(3); } while (0)
 
 /**
  * Initialize the specified channel of the DAC for AFSK needs.

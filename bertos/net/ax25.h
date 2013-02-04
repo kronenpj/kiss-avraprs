@@ -50,6 +50,16 @@
 #include <cfg/compiler.h>
 #include <io/kfile.h>
 
+#ifndef AX25_STROBE_INIT
+#define AX25_STROBE_INIT() do { /* Implement me */ } while (0)
+#endif
+#ifndef AX25_STROBE_ON
+#define AX25_STROBE_ON()   do { /* Implement me */ } while (0)
+#endif
+#ifndef AX25_STROBE_OFF
+#define AX25_STROBE_OFF()  do { /* Implement me */ } while (0)
+#endif
+
 /**
  * Maximum size of a AX25 frame.
  */
@@ -80,8 +90,11 @@ typedef struct AX25Ctx
 	uint16_t crc_in;  ///< CRC for current received frame
 	uint16_t crc_out; ///< CRC of current sent frame
 	ax25_callback_t hook; ///< Hook function to be called when a message is received
+	bool raw;    ///< True if we want raw AX25 packet processing.
 	bool sync;   ///< True if we have received a HDLC flag.
 	bool escape; ///< True when we have to escape the following char.
+	uint8_t dcd_state;
+	bool dcd;
 } AX25Ctx;
 
 
@@ -184,7 +197,7 @@ void ax25_sendVia(AX25Ctx *ctx, const AX25Call *path, size_t path_len, const voi
  * \see ax25_sendVia() if you want to send a frame with a specific path.
  */
 #define ax25_send(ctx, dst, src, buf, len) ax25_sendVia(ctx, ({static AX25Call __path[]={dst, src}; (AX25Call *)&__path;}), 2, buf, len)
-void ax25_init(AX25Ctx *ctx, KFile *channel, ax25_callback_t hook);
+void ax25_init(AX25Ctx *ctx, KFile *channel, bool raw, ax25_callback_t hook);
 
 void ax25_print(KFile *ch, const AX25Msg *msg);
 void ax25_sendRaw(AX25Ctx*, const void *, size_t);

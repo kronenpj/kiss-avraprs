@@ -54,7 +54,6 @@
 #include <net/kiss.h>
 
 #include <drv/ser.h>
-#include <drv/timer.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -100,7 +99,7 @@ static void init(void)
 	 * Here we initialize AX25 context, the channel (KFile) we are going to read messages
 	 * from and the callback that will be called on incoming messages.
 	 */
-	ax25_init(&ax25, &afsk.fd, message_callback);
+	ax25_init(&ax25, &afsk.fd, 1, kiss_message_callback);
 
 	/* Initialize serial port, we are going to use it to show APRS messages*/
 	ser_init(&ser, SER_UART0);
@@ -109,14 +108,9 @@ static void init(void)
 	kiss_init(&ser, &ax25, &afsk);
 }
 
-static AX25Call path[] = AX25_PATH(AX25_CALL("apzbrt", 0), AX25_CALL("nocall", 0), AX25_CALL("wide1", 1), AX25_CALL("wide2", 2));
-
-#define APRS_MSG    ">Test BeRTOS APRS http://www.bertos.org"
-
 int main(void)
 {
 	init();
-	ticks_t start = timer_clock();
 
 	while (1)
 	{
@@ -128,12 +122,8 @@ int main(void)
 		ax25_poll(&ax25);
 
 
-		/* Send out message every 15sec */
-		if (timer_clock() - start > ms_to_ticks(15000L))
-		{
-			start = timer_clock();
-			ax25_sendVia(&ax25, path, countof(path), APRS_MSG, sizeof(APRS_MSG));
-		}
+		kiss_serial_poll();
+		kiss_queue_process();
 	}
 	return 0;
 }
