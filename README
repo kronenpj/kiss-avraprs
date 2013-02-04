@@ -1,0 +1,36 @@
+This is a project that combines code from a number of sources into a,
+hopefully, working and useful KISS TNC.
+
+Thanks to BertOS, KI4MCW and OM5AMX, without whom I probably wouldn't have
+been able to do this.
+Starting with the BertOS example for AVR, KI4MCW made excellent progress
+before turning to the Parallax Propeller.  I wanted to stick with the AVR
+so I looked at other projects that used BertOS and happened across OM5AMX's
+work on the Cortex-M3.  Michal's KISS implementation is more complete than
+Rob had created so far.
+
+The work I've done is mostly limited to merging the KISS implementation with
+Rob's modifications to the original BertOS example code.  Original code is
+available from the code below:
+
+http://www.bertos.org/use/examples-projects/arduino-aprs/
+https://sites.google.com/site/ki4mcw/Home/arduino-tnc
+http://michaldemin.wordpress.com/2012/02/27/cheap-afsk-tnc/
+
+I've added PTT output on PB3 / Arduino D11, LED strobe output on PB4 / D12
+when the DAC code is running, in addition to the LED strobe on PB5 / D13 when
+the ADC is running.
+
+
+Problems, bugs, things to fix...
+
+On Uno, the code does not transmit. I haven't investigated why the two boards
+differ or why the code runs differently on them.
+
+Due to the limited RAM space on the ATmega 328P there are some limitations:
+	The serial buffer is 330 bytes.
+	The AFSK TX/RX buffers are 64 bytes each.
+This probably will not work well as a full-fledged KISS TNC!
+
+-Paul
+N2KIQ
