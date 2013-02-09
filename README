@@ -1,5 +1,5 @@
 This is a project that combines code from a number of sources into a,
-hopefully, working and useful KISS TNC.
+hopefully, working and useful KISS TNC for at least APRS.
 
 Thanks to BertOS, KI4MCW and OM5AMX, without whom I probably wouldn't have
 been able to do this.
@@ -19,13 +19,27 @@ http://michaldemin.wordpress.com/2012/02/27/cheap-afsk-tnc/
 
 I've added PTT output on PB3 / Arduino D11, LED strobe output on PB4 / D12
 when the DAC code is running, in addition to the LED strobe on PB5 / D13 when
-the ADC is running.
+the ADC is running.  The latter is either not working, or is too fast for the
+LED to be seen by eye.
 
+Testing has, so far, been performed off-air with a Linux machine with Xastir
+and Soundmodem, as well as the APRS test CD.  On-air receive testing will occur
+next, followed by monitored transmit testing.
 
 Problems, bugs, things to fix...
 
-On Uno, the code does not transmit. I haven't investigated why the two boards
-differ or why the code runs differently on them.
+On the Uno, if the serial port isn't opened soon after the device is powered
+on, the USB-serial code on the ATmega8U4 doesn't allow the tty device to be
+opened on the computer.  I've heard there might be bugs in the LUFA
+implementation but I haven't looked into those claims.
+
+I need to verify how the board behaves in real life.  There's a real
+possibility that it'll end up being unfriendly on-air, transmitting over
+whomever it pleases.
+
+The ADC (receive) strobe indicator on PB5 / D13 isn't visible, or is broken.
+I'm Thinking about toggling it on & off when the routine is entered, rather
+than when the routine is entered and exited.  This might slow it down a bit.
 
 Due to the limited RAM space on the ATmega 328P there are some limitations:
 	The serial buffer is 330 bytes.
