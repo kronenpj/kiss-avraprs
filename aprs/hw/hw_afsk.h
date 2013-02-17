@@ -67,27 +67,38 @@ void hw_afsk_dacInit(int ch, struct Afsk *_ctx);
  */
 #define AFSK_ADC_INIT(ch, ctx) hw_afsk_adcInit(ch, ctx)
 
+/* Define strobe pins
+* 0 = PortB0 = Arduino D08
+* 1 = PortB1 = Arduino D09
+* 2 = PortB2 = Arduino D10
+* 3 = PortB3 = Arduino D11
+* 4 = PortB4 = Arduino D12
+* 5 = PortB5 = Arduino D13 (On-board LED)
+*/
+#define AFSK_STROBE_1 4
+#define AFSK_STROBE_2 2
+#define AFSK_STROBE_3 3
 /*
  * Activate strobe pin. We use it for debugging purposes. If you don't use it, simply
  * leave empty the following macros
  */
-#define AFSK_STROBE_INIT() do { DDRB |= BV(5); } while (0)
-#define AFSK_RX_STROBE_INIT() do { DDRB |= BV(4); } while (0)
-#define AFSK_PTT_INIT() do { DDRB |= BV(3); } while (0)
+#define AFSK_STROBE_INIT() do { DDRB |= BV(AFSK_STROBE_1); } while (0)
+#define AFSK_RX_STROBE_INIT() do { DDRB |= BV(AFSK_STROBE_2); } while (0)
+#define AFSK_PTT_INIT() do { DDRB |= BV(AFSK_STROBE_3); } while (0)
 
 /*
  * Set the pin high. This macro is called at the beginning of the interrupt routine
  */
-#define AFSK_STROBE_ON()   do { PORTB |= BV(5); } while (0)
-#define AFSK_RX_STROBE_ON() do { PORTB |= BV(4); } while (0)
-#define AFSK_PTT_ON()   do { PORTB |= BV(3); } while (0)
+#define AFSK_STROBE_ON()   do { PORTB |= BV(AFSK_STROBE_1); } while (0)
+#define AFSK_RX_STROBE_ON() do { PORTB |= BV(AFSK_STROBE_2); } while (0)
+#define AFSK_PTT_ON()   do { PORTB |= BV(AFSK_STROBE_3); } while (0)
 
 /*
  * Set the pin low. This macro is called at the end of the interrupt routine
  */
-#define AFSK_STROBE_OFF()  do { PORTB &= ~BV(5); } while (0)
-#define AFSK_RX_STROBE_OFF() do { PORTB &= ~BV(4); } while (0)
-#define AFSK_PTT_OFF()   do { PORTB &= ~BV(3); } while (0)
+#define AFSK_STROBE_OFF()  do { PORTB &= ~BV(AFSK_STROBE_1); } while (0)
+#define AFSK_RX_STROBE_OFF() do { PORTB &= ~BV(AFSK_STROBE_2); } while (0)
+#define AFSK_PTT_OFF()   do { PORTB &= ~BV(AFSK_STROBE_3); } while (0)
 
 /**
  * Initialize the specified channel of the DAC for AFSK needs.

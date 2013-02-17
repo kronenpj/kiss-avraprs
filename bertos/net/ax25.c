@@ -169,6 +169,7 @@ void ax25_poll(AX25Ctx *ctx)
 
 			ctx->dcd_state = 0;
 			ctx->dcd = false;
+			AX25_DCD_STROBE_OFF();
 			continue;
 		}
 
@@ -177,6 +178,7 @@ void ax25_poll(AX25Ctx *ctx)
 			LOG_INFO("HDLC reset\n");
 			ctx->sync = false;
 			ctx->dcd = false;
+			AX25_DCD_STROBE_OFF();
 			continue;
 		}
 
@@ -196,6 +198,7 @@ void ax25_poll(AX25Ctx *ctx)
 				if (ctx->dcd_state == 1 && c == AX25_PID_NOLAYER3) {
 					ctx->dcd_state ++;
 					ctx->dcd = true;
+					AX25_DCD_STROBE_ON();
 				}
 
 				if (ctx->dcd_state == 0 && c == AX25_CTRL_UI) {
@@ -207,6 +210,7 @@ void ax25_poll(AX25Ctx *ctx)
 				LOG_INFO("Buffer overrun");
 				ctx->sync = false;
 				ctx->dcd = false;
+				AX25_DCD_STROBE_OFF();
 			}
 		}
 		ctx->escape = false;
@@ -217,6 +221,7 @@ void ax25_poll(AX25Ctx *ctx)
 		LOG_ERR("Channel error [%04x]\n", kfile_error(ctx->ch));
 		kfile_clearerr(ctx->ch);
 		ctx->dcd = false;
+		AX25_DCD_STROBE_OFF();
 	}
 }
 
@@ -370,4 +375,6 @@ void ax25_init(AX25Ctx *ctx, KFile *channel, bool raw, ax25_callback_t hook)
 	ctx->hook = hook;
 	ctx->raw = raw;
 	ctx->crc_in = ctx->crc_out = CRC_CCITT_INIT_VAL;
+	AX25_DCD_STROBE_INIT();
+	AX25_DCD_STROBE_OFF();
 }

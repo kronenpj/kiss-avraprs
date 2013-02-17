@@ -38,6 +38,8 @@
 #ifndef CFG_AX25_H
 #define CFG_AX25_H
 
+#include <avr/io.h>
+
 /**
  * Module logging level.
  *
@@ -71,5 +73,30 @@
  * $WIZ$ type = "boolean"
  */
 #define CONFIG_AX25_RPT_LST 1
+
+/* Define strobe pins
+ * * 0 = PortB0 = Arduino D08
+ * * 1 = PortB1 = Arduino D09
+ * * 2 = PortB2 = Arduino D10
+ * * 3 = PortB3 = Arduino D11
+ * * 4 = PortB4 = Arduino D12
+ * * 5 = PortB5 = Arduino D13 (On-board LED)
+ * */
+#define AX25_STROBE_1 5
+/*
+ *  * Activate strobe pin. We use it for debugging purposes. If you don't use it, simply
+ * leave empty the following macros
+ */
+#define AX25_DCD_STROBE_INIT() do { DDRB |= BV(AX25_STROBE_1); } while (0)
+
+/*
+ * Set the pin high. This macro is called at the beginning of the interrupt routine
+ */
+#define AX25_DCD_STROBE_ON() do { PORTB |= BV(AX25_STROBE_1); } while (0)
+
+/*
+ * Set the pin low. This macro is called at the end of the interrupt routine
+ */
+#define AX25_DCD_STROBE_OFF() do { PORTB &= ~BV(AX25_STROBE_1); } while (0)
 
 #endif /* CFG_AX25_H */
